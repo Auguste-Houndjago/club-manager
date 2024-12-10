@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Mode de sortie recommandé pour Vercel
-  output: 'standalone', 
+  output: undefined,
 
   // Configuration des images
   images: { 
