@@ -9,15 +9,5 @@ const nextConfig = {
   },
 
 
-  // Gestion des routes API
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: '/api/:path*',
-      },
-    ];
-  },
-};
 
 module.exports = nextConfig;
