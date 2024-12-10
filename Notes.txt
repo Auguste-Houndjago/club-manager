@@ -1,0 +1,441 @@
+
+
+line up 
+
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Position } from "@prisma/client";
+
+
+
+interface Player {
+  id: string;
+  name: string;
+  position: Position;
+  number: number;
+}
+
+
+const AVAILABLE_PLAYERS: Player[] = [
+  { id: "1", name: "Komi Etru", position: "GK", number: 1 },
+  { id: "2", name: "Gigi Tacleur", position: "DF", number: 4 },
+  { id: "3", name: "casse jambe", position: "DF", number: 5 },
+  { id: "4", name: "messie mesiano", position: "MF", number: 8 },
+  { id: "5", name: "Robert Davis", position: "FW", number: 9 },
+  { id: "6", name: "Michael robert", position: "MF", number: 10 },
+  { id: "7", name: "Daniel Taylor", position: "DF", number: 2 },
+  { id: "8", name: "agbota Anderson", position: "FW", number: 11 },
+  { id: "9", name: "prepre special", position: "MF", number: 6 },
+  { id: "10", name: "Thomas Garcia", position: "DF", number: 3 },
+  { id: "11", name: "miltraillette petit", position: "GK", number: 13 },
+];
+
+interface PlayerListProps {
+  onPlayerSelect: (player: Player) => void;
+  selectedPlayers: Player[];
+}
+
+export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps) {
+  const isPlayerSelected = (playerId: string) => 
+    selectedPlayers.some(p => p.id === playerId);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Available Players</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ScrollArea className="h-[400px] pr-4">
+          <div className="space-y-2">
+            {AVAILABLE_PLAYERS.map((player) => (
+              <div
+                key={player.id}
+                className="flex items-center justify-between p-2 border rounded hover:bg-accent"
+              >
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{player.number}</Badge>
+                  <div>
+                    <p className="font-medium">{player.name}</p>
+                    <p className="text-sm text-muted-foreground">{player.position}</p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => onPlayerSelect(player)}
+                  disabled={isPlayerSelected(player.id)}
+                >
+                  {isPlayerSelected(player.id) ? "Selected" : "Select"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
+}
+
+
+erecuperation de l user.admin.id  via l email de l user avec prisma
+
+import { useEffect, useState } from "react";
+
+function AddPlayerDialog({ open, onOpenChange }: AddPlayerDialogProps) {
+  const { user } = useAuth();
+  const [managerId, setManagerId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    async function fetchManager() {
+      if (user?.email) {
+        try {
+          const response = await fetch(`/api/managers/by-email?email=${user.email}`);
+          const data = await response.json();
+          setManagerId(data.managerId);
+        } catch (error) {
+          console.error("Erreur lors de la récupération du manager :", error);
+        }
+      }
+    }
+    fetchManager();
+  }, [user]);
+
+  return (
+    <>
+      {managerId ? (
+        <div>Manager trouvé : {managerId}</div>
+      ) : (
+        <div>Chargement des données du manager...</div>
+      )}
+      {/* Formulaire ici */}
+    </>
+  );
+}
+
+
+son api 
+extrait
+
+const manager = await prisma.manager.findFirst({
+  where: {
+    user: {
+      email: userEmail, // userEmail est l'email fourni par le contexte ou l'authentification
+    },
+  },
+  include: {
+    user: true, // Inclure les informations utilisateur si nécessaire
+  },
+});
+
+
+##API
+
+import { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "@/lib/prisma"; // Ajustez le chemin vers votre instance Prisma
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Méthode non autorisée" });
+  }
+
+  const { email } = req.query;
+  if (!email || typeof email !== "string") {
+    return res.status(400).json({ error: "Email requis" });
+  }
+
+  try {
+    const manager = await prisma.manager.findFirst({
+      where: {
+        user: {
+          email: email,
+        },
+      },
+    });
+
+    if (!manager) {
+      return res.status(404).json({ error: "Manager introuvable" });
+    }
+
+    return res.status(200).json({ managerId: manager.id });
+  } catch (error) {
+    console.error("Erreur lors de la récupération du manager :", error);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+}
+
+
+
+
+## ancien api/register/route.ts
+
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+import {prisma} from "@/lib/prisma";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { email, password, role } = body;
+
+    // Validation de base
+    if (!email || !password || !role) {
+      return NextResponse.json(
+        { error: "Email, mot de passe et rôle sont requis." },
+        { status: 400 }
+      );
+    }
+
+    if (! ["ADMIN", "MANAGER"].includes(role)) {
+      return NextResponse.json(
+        { error: "Le rôle doit être ADMIN ou MANAGER." },
+        { status: 400 }
+      );
+    }
+
+    // existing user?
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Un utilisateur avec cet email existe déjà." },
+        { status: 409 }
+      );
+    }
+
+    // Hacher password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Créer new user
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "Utilisateur créé avec succès.", user: newUser },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Une erreur est survenue lors de la création de l'utilisateur." },
+      { status: 500 }
+    );
+  }
+}
+
+
+nouveau api register 01
+
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+import { prisma } from "@/lib/prisma";
+import { supabaseServer } from "@/lib/supabase";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { email, password, role } = body;
+
+    // Validation de base
+    if (!email || !password || !role) {
+      return NextResponse.json(
+        { error: "Email, mot de passe et rôle sont requis." },
+        { status: 400 }
+      );
+    }
+
+    if (!["ADMIN", "MANAGER"].includes(role)) {
+      return NextResponse.json(
+        { error: "Le rôle doit être ADMIN ou MANAGER." },
+        { status: 400 }
+      );
+    }
+
+
+    // Hachage du mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Création de l'utilisateur dans Prisma
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        role,
+      },
+    });
+
+    // Création de l'utilisateur dans Supabase Auth
+    const { data: authUser, error: authError } = await supabaseServer.auth.admin.createUser({
+      email,
+      password,
+    });
+
+    if (authError) {
+      console.error(authError);
+      return NextResponse.json(
+        { error: "Erreur lors de la création de l'utilisateur dans Supabase Auth." },
+        { status: 500 }
+      );
+    }
+
+    // Réponse avec succès
+    return NextResponse.json(
+      {
+        message: "Utilisateur créé avec succès.",
+        user: newUser,
+        authUser,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Une erreur est survenue lors de la création de l'utilisateur." },
+      { status: 500 }
+    );
+  }
+}
+
+
+
+##recuperation d utilisateur
+nececite des permision pour l accet a select 
+
+  // useEffect(() => {
+  //   const fetchPlayers = async () => {
+  //     try {
+  //       const { data, error } = await supabase.from("Player").select("*");
+  //       if (error) throw error;
+
+  //       console.log("Players retrieved:", data); 
+  //       setPlayers(data); 
+  //     } catch (err) {
+  //       console.error("Error fetching players:", err);
+  //     } finally {
+  //       setLoading(false); 
+  //     }
+  //   };
+
+  //   fetchPlayers();
+  // }, []);
+
+
+  ##userProfile informations
+
+'use client'
+
+import useAuth from '@/hooks/useAuth';
+
+const ProfileInfo = () => {
+  const { user, signOut, updateUserMetadata, getUserRoles, loading } = useAuth();
+
+  if (loading) return <p>Loading...</p>;
+
+  const handleUpdateUsername = async () => {
+    await updateUserMetadata({ username: 'NewUsername' });
+    alert('Username updated!');
+  };
+
+  const roles = getUserRoles();
+
+  return (
+    <div>
+      <h1>Welcome, {user?.email}</h1>
+      <p>Your roles: {roles.join(' , ')}</p>
+      <button onClick={handleUpdateUsername}>Update Username</button>
+      <button onClick={signOut} className='text-base font-bold mx-2'> Logout</button>
+    </div>
+  );
+};
+
+export default ProfileInfo;
+
+
+
+  'use client'
+
+import { useState, useEffect } from 'react';
+import useAuth from '@/hooks/useAuth';
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
+
+const ProfileInfo = () => {
+  const { user, signOut, updateUserMetadata, getUserRoles, loading } = useAuth();
+  const [userData, setUserData] = useState<any>(null); 
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+
+      const supabase = createBrowserSupabaseClient();
+      const { data: session } = await supabase.auth.getSession();
+    
+      if (!session) {
+        throw new Error('User not authenticated');
+      }
+
+      try {
+        const response = await fetch('/api/users/details'); // Appel de l'API pour récupérer les données
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des données utilisateur.');
+        }
+        const data = await response.json();
+        setUserData(data);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+
+    if (user) fetchUserData();
+  }, [user]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  const handleUpdateUsername = async () => {
+    await updateUserMetadata({ username: 'NewUsername' });
+    alert('Username updated!');
+  };
+
+  const roles = getUserRoles();
+
+  return (
+    <div>
+      <h1>Welcome, {user?.email}</h1>
+      <p>Your roles: {roles.join(', ')}</p>
+      <button onClick={handleUpdateUsername}>Update Username</button>
+      <button onClick={signOut} className="text-base font-bold mx-2">Logout</button>
+
+      {userData && (
+        <div className="mt-4">
+          <h2>Details:</h2>
+          <p><strong>Name:</strong> {userData.manager?.firstName} {userData.manager?.lastName}</p>
+          <p><strong>Team:</strong> {userData.manager?.team?.name || 'No team assigned'}</p>
+          <p><strong>Players:</strong></p>
+          <ul>
+            {userData.manager?.players?.length > 0 ? (
+              userData.manager.players.map((player: any) => (
+                <li key={player.id}>
+                  {player.firstName} {player.lastName} - {player.position}
+                </li>
+              ))
+            ) : (
+              <p>No players assigned</p>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProfileInfo;
