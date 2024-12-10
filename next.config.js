@@ -8,17 +8,6 @@ const nextConfig = {
     unoptimized: false, 
   },
 
-  // Configuration pour Vercel
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    return config;
-  },
 
   // Gestion des routes API
   async rewrites() {
