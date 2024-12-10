@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import  prisma  from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
@@ -78,6 +78,7 @@ export async function GET() {
       include: {
         team: true,
       },
+      
     });
     return NextResponse.json(players);
   } catch (error) {
