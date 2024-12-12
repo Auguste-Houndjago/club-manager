@@ -114,7 +114,7 @@ const MobileSidebar = ({ userName = "Manager Name", userRole = "Manager", userIm
             <PlusCircle className="h-6 w-6" /> 
           </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="bg-[#1F1F1F] text-white w-auto bg-transparent">
+      <SheetContent side="left" className="bg-[#1F1F1F] text-white w-auto bg-transparent hover:bg-transparent/60">
         {/* Mobile Sidebar Header */}
         <div className="p-4 flex items-center gap-3">
           <button
