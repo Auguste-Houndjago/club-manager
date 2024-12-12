@@ -181,7 +181,6 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
                 transform: "translate(-50%, -50%)",
               }}
             >
-            
               <Badge 
                 className={`md:w-12 md:h-12 rounded-full flex items-center justify-center hover:border-primary/50 cursor-pointer shadow-lg transition-transform hover:scale-110  ${getBadgeBorderColor(player.position)}`}
                 variant="secondary"
