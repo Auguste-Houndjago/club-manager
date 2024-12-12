@@ -106,7 +106,7 @@ const MobileSidebar = ({ userName = "Manager Name", userRole = "Manager", userIm
   ];
 
   return (
-    <Sheet open={open} onOpenChange={setOpen} c>
+    <Sheet open={open} onOpenChange={setOpen} >
       <SheetTrigger asChild>
       <Button variant="default" className=" z-50 fixed left-4 bottom-4"
          onClick={() => setOpen(!open)}
