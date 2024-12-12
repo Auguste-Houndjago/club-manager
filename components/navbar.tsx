@@ -28,7 +28,7 @@ export default function Navbar() {
       icon: Trophy,
     },
     {
-      href: "/players",
+      href: "/manager/dashboard/players",
       label: "Joueurs",
       icon: Users,
     },

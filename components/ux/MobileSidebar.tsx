@@ -173,7 +173,7 @@ const MobileSidebar = ({ userName = "Manager Name", userRole = "Manager", userIm
                       href={subItem.href}
                       className={`block p-2 rounded-lg text-sm ${
                         pathname === subItem.href
-                          ? 'bg-orange-600'
+                          ? 'bg-orange-500/80'
                           : 'hover:bg-gray-700'
                       }`}
                     >
