@@ -16,7 +16,8 @@ import {
   Calendar,
   ClipboardList,
   Settings,
-  User
+  User,
+  Star
 } from 'lucide-react';
 
 type SidebarProps = {
@@ -43,19 +44,22 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
       icon: <Home className="w-5 h-5" />,
       href: "#",
       subItems: [
-        { label: "players", href: "/manager/dashboard/players" },
-        { label: "Statistics", href: "/manager/dashboard/statistics" },
+        { label: "Ajouter joueurs", href: "/manager/dashboard/players/add" },
+        { label: "profile joueurs", href: "/manager/dashboard/players/profile" },
+        { label: "liste joueurs", href: "/players" },
+        { label: "statistics", href: "/manager/dashboard/players/statistics" },
+  
       ]
     },
     {
-      label: "Players",
-      icon: <Users/>,
-      href: "/players",
+      label: "Matches",
+      icon: <Star/>,
+      href: "/matches",
     },
     {
-      label: "Matches",
+      label: "teams",
       icon: <Trophy/>,
-      href: "/matches",
+      href: "/teams",
     },
     {
       label: "teams",
@@ -96,7 +100,7 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
   ];
 
   return (
-    <div className="flex  flex-col border-4 h-full z-20 rounded-md ">
+    <div className="flex  flex-col  h-full z-20 rounded-md ">
       <div
         className={`flex flex-col h-full  rounded-md bg-[#1F1F1F] text-white transition-all duration-300 ${
           isCollapsed ? 'w-20' : 'w-64 '

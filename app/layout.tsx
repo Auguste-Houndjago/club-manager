@@ -35,7 +35,7 @@ export default function RootLayout({
             <div className="max-h-screen bg-background">
               <Navbar />
 
-              <main className="container mx-auto md:px-4 border-4 ">
+              <main className="container mx-auto md:px-4  ">
 
                 {children}
              
