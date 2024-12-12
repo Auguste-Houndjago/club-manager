@@ -14,12 +14,10 @@ import { useEffect, useState } from "react";
 
 export function PlayerStats() {
   const [players, setPlayers] = useState<Player[]>([]);
-
   const [loading, setLoading] = useState(true);
-  const [showAddDialog, setShowAddDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
-const [playerId, setplayerId] = useState();
-const [stats, setstats] = useState<Statistics>();
+  const [playerId, setPlayerId] = useState<number>();
+  const [stats, setStats] = useState<Statistics>();
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -44,6 +42,8 @@ const [stats, setstats] = useState<Statistics>();
   }, []);
 
   useEffect(() => {
+    if (!playerId) return;
+
     const fetchStats = async () => {
       try {
         const response = await fetch(`/api/players/${playerId}/statistics`);
@@ -53,12 +53,10 @@ const [stats, setstats] = useState<Statistics>();
         }
 
         const data = await response.json();
-        setstats(data);
+        setStats(data);
       } catch (err: any) {
-        console.error("Erreur lors de la récupération des joueurs :", err);
+        console.error("Erreur lors de la récupération des statistiques :", err);
         setError(err.message);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -66,35 +64,49 @@ const [stats, setstats] = useState<Statistics>();
   }, [playerId]);
 
   return (
-    <Card>
+    <Card className="p-2 sm:p-4 lg:p-8 w-[300px]">
       <CardHeader>
-        <CardTitle>Player Statistics</CardTitle>
+        <CardTitle className="text-lg sm:text-xl lg:text-2xl text-center sm:text-left">
+          Player Statistics
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Position</TableHead>
-              <TableHead>nationality</TableHead>
-              <TableHead>Games</TableHead>
-              <TableHead>Goals</TableHead>
-              <TableHead>Assists</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {players.map((player, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{player.firstName} {player.lastName} </TableCell>
-                <TableCell>{player.position}</TableCell>
-                <TableCell>{player.nationality}</TableCell>
-                <TableCell>{player.height}   </TableCell>
-                <TableCell>{stats?.goals}</TableCell>
-                <TableCell>{stats?.assists}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {loading ? (
+          <p className="text-center">Chargement des données...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <div className="min-w-[600px]">
+              <Table className="w-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Position</TableHead>
+                    <TableHead>Nationality</TableHead>
+                    <TableHead>Games</TableHead>
+                    <TableHead>Goals</TableHead>
+                    <TableHead>Assists</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {players.map((player, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">
+                        {player.firstName} {player.lastName}
+                      </TableCell>
+                      <TableCell>{player.position}</TableCell>
+                      <TableCell>{player.nationality}</TableCell>
+                      <TableCell>{player.height}</TableCell>
+                      <TableCell>{stats?.goals}</TableCell>
+                      <TableCell>{stats?.assists}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -1,21 +1,20 @@
-import { PlayerStats } from "@/components/dashboard/player-stats";
-import PlayerProfile from "@/components/players/PlayerProfile";
-import ApiTry from "@/components/try/ApiTry";
-import PlayersPage from "@/components/try/PlayerRelation";
+
+import UserSupabase from "@/components/auth/user";
+import Cadre from "@/components/try/cadre";
+import FormTry from "@/components/try/Formtry";
+import { LogoutUser } from "@/components/try/LogoutTest";
+
 
 
 const TestUi = () => {
     return ( <div>
   <h1>test page</h1>
-  <PlayerStats/>
-
-  <div>
-    <PlayerProfile/>
+  <div className="md:w-1/2 w-[700px]">
+<FormTry/>
+<Cadre/>
   </div>
-
-  <ApiTry/>
-
-  <PlayersPage/>
+<UserSupabase/>
+<LogoutUser/>
     </div> );
 }
  

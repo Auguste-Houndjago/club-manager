@@ -96,23 +96,6 @@ const router = useRouter()
               />
             </div>
 
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-                Rôle
-              </label>
-              <Select 
-                value={role} 
-                onValueChange={(value) => setRole(value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez un rôle" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ADMIN">Administrateur</SelectItem>
-                  <SelectItem value="MANAGER">Manager</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
             <Button 
               type="submit" 

@@ -6,6 +6,8 @@ import { Toaster } from '@/components/ui/toaster'
 import Navbar from '@/components/navbar'
 import { AuthProvider } from './contexts/AuthContext'
 import PlayerProvider from './contexts/PlayersContext'
+import Sidebar from '@/components/ux/SideBar'
+import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -30,10 +32,13 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <PlayerProvider>
-            <div className="min-h-screen bg-background">
+            <div className="max-h-screen bg-background">
               <Navbar />
-              <main className="container mx-auto px-4 py-8">
+
+              <main className="container mx-auto md:px-4 border-4 ">
+
                 {children}
+             
               </main>
             </div>
             <Toaster />

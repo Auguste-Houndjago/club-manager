@@ -20,14 +20,14 @@ interface PlayerListProps {
 }
 
 export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps) {
-  const [players, setPlayers] = useState<Player[]>([]); 
+  const [players, setPlayers] = useState<Player[]| undefined>([]); 
   const isPlayerSelected = (playerId: string) =>
     selectedPlayers.some((p) => p.id === playerId);
 
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+   
         const response = await fetch(`/api/players`); 
         const data = await response.json();
         setPlayers(data); 
@@ -46,7 +46,8 @@ export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps)
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
+            {players? ( <div> 
             {players.map((player) => (
               <div
                 key={player.id}
@@ -69,7 +70,11 @@ export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps)
                 </Button>
               </div>
             ))}
-          </div>
+
+</div> )  : ( <div>  <h1>not player</h1>  </div>  )  }
+          </div> */}
+
+          
         </ScrollArea>
       </CardContent>
     </Card>

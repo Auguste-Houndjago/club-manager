@@ -23,7 +23,7 @@ export default function Navbar() {
 
   const routes = [
     {
-      href: "/teams",
+      href: "/manager/dashboard/teams",
       label: "Équipes",
       icon: Trophy,
     },

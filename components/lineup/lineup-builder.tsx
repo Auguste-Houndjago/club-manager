@@ -51,7 +51,7 @@ export function LineupBuilder() {
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-[300px_1fr]">
+    <div className="grid gap-6  gap-x-2 md:grid-cols-[300px_1fr]">
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -103,17 +103,21 @@ export function LineupBuilder() {
         <PlayerList onPlayerSelect={handlePlayerSelect} selectedPlayers={selectedPlayers} />
       </div>
 
-      <Card>
+      <Card className="px-0">
         <CardHeader>
           <CardTitle>Field Setup</CardTitle>
         </CardHeader>
-        <CardContent className="xl:px-10 ">
+        <CardContent className="px-4">
+
+          {selectedPlayers && 
           <FootballField 
             formation={selectedFormation}
             players={selectedPlayers}
             positions={fieldPositions}
             onPlayerDrop={handlePlayerDrop}
           />
+
+        }
         </CardContent>
       </Card>
     </div>

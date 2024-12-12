@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
+  LayoutDashboard, 
   Activity, 
+  TrendingUp, 
+  BarChart2, 
   Wallet, 
   Bell,
   Plus,
@@ -16,8 +19,11 @@ import {
   Calendar,
   ClipboardList,
   Settings,
-  User
+  User,
+  PlusCircle
 } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '../ui/button';
 
 type SidebarProps = {
   userName?: string;
@@ -32,10 +38,16 @@ type NavItem = {
   subItems?: { label: string; href: string; }[];
 };
 
-const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage = "/admin.png" }: SidebarProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [expandedItem, setExpandedItem] = useState<string | null>("Dashboard");
+const MobileSidebar = ({ userName = "Manager Name", userRole = "Manager", userImage = "/admin.png" }: SidebarProps) => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setOpen(false);
+    setExpandedItem(null);
+  }, [pathname]);
 
   const navigationItems: NavItem[] = [
     {
@@ -43,14 +55,12 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
       icon: <Home className="w-5 h-5" />,
       href: "#",
       subItems: [
-        { label: "players", href: "/manager/dashboard/players" },
-        { label: "Statistics", href: "/manager/dashboard/statistics" },
+        { label: "Ajouter joueurs", href: "/manager/dashboard/players/add" },
+        { label: "profile joueurs", href: "/manager/dashboard/players/profile" },
+        { label: "liste joueurs", href: "/players" },
+        { label: "statistics", href: "/manager/dashboard/players/statistics" },
+  
       ]
-    },
-    {
-      label: "Players",
-      icon: <Users/>,
-      href: "/players",
     },
     {
       label: "Matches",
@@ -82,7 +92,6 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
       icon: <Settings/>,
       href: "/settings",
     },
-   
     {
       label: "Finance",
       icon: <Wallet className="w-5 h-5" />,
@@ -96,45 +105,52 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
   ];
 
   return (
-    <div className="flex  flex-col border-4 h-full z-20 rounded-md ">
-      <div
-        className={`flex flex-col h-full  rounded-md bg-[#1F1F1F] text-white transition-all duration-300 ${
-          isCollapsed ? 'w-20' : 'w-64 '
-        }`}
-      >
+    <Sheet open={open} onOpenChange={setOpen} >
+      <SheetTrigger asChild>
+      <Button variant="default" className=" z-50 fixed left-4 bottom-4"
+         onClick={() => setOpen(!open)}
+        >
+            <PlusCircle className="h-6 w-6" /> 
+          </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="bg-[#1F1F1F] text-white w-auto bg-transparent">
+        {/* Mobile Sidebar Header */}
         <div className="p-4 flex items-center gap-3">
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-2 hover:bg-gray-700 rounded-lg"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5 " />
           </button>
+
           {!isCollapsed && (
-            
-            <div className="flex items-center gap-3">
-         <User/>
-              <div>
-                <h3 className="font-medium text-sm">{userName}</h3>
-                <p className="text-xs text-gray-400">{userRole}</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <User className="text-white"/>
+            <div>
+              <h3 className="font-medium text-sm text-white">{userName}</h3>
+              <p className="text-xs text-gray-400">{userRole}</p>
             </div>
-          )}
+          </div>
+                )}
         </div>
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4">
+
+       
+        <nav className="px-3 py-4 overflow-y-auto">
           {navigationItems.map((item) => (
             <div key={item.label}>
               <Link
                 href={item.href}
                 className={`flex items-center gap-3 p-3 rounded-lg mb-1 ${
-                  pathname === item.href ? 'bg-orange-600' : 'hover:bg-gray-700'
+                  pathname === item.href ? 'bg-secondary/70 border-primary' : 'hover:bg-gray-700'
                 }`}
               >
                 {item.icon}
-                {!isCollapsed && (
+
+               {!isCollapsed && (
                   <span className="flex-1">{item.label}</span>
                 )}
-                {!isCollapsed && item.subItems && (
+
+{!isCollapsed && item.subItems && (
                   <ChevronDown
                     className={`w-4 h-4 transition-transform ${
                       expandedItem === item.label ? 'rotate-180' : ''
@@ -174,9 +190,9 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
           >
           </button>
         </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 
-export default Sidebar;
+export default MobileSidebar;

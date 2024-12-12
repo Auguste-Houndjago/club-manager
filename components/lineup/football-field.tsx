@@ -101,7 +101,7 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       <div className="flex justify-end">
         <Button
           variant="outline"
@@ -114,7 +114,7 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
       </div>
       
       <div 
-        className="relative w-full h-[750px] rounded-lg overflow-hidden shadow-xl"
+        className="relative w-full h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
         style={{
@@ -122,7 +122,7 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
         }}
       >
         {/* Field texture */}
-        <div className="absolute inset-0" 
+        <div className="absolute  inset-0" 
           style={{
             backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 40px)',
           }}
@@ -134,7 +134,7 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
         <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white/30" />
         
         {/* Center circle */}
-        <div className="absolute left-1/2 top-1/2 w-[150px] h-[150px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30" />
+        <div className="absolute left-1/2 top-1/2 md:w-[150px] md:h-[150px] w-[90px] h-[90px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30" />
         <div className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/30" />
         
         {/* Penalty areas */}
