@@ -59,7 +59,7 @@ const MobileSidebar = ({ userName = "Manager Name", userRole = "Manager", userIm
         { label: "Ajouter joueurs", href: "/manager/dashboard/players/add" },
         { label: "profile joueurs", href: "/manager/dashboard/players/profile" },
         { label: "liste joueurs", href: "/manager/dashboard/players/" },
-        { label: "statistics", href: "/manager/dashboard/players/statistics" },
+        { label: "statistiques", href: "/manager/dashboard/players/statistics" },
   
       ]
     },
