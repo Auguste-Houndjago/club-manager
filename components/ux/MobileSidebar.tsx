@@ -46,8 +46,8 @@ const MobileSidebar = ({ userName = "Manager Name", userRole = "Manager", userIm
   const pathname = usePathname();
 
   useEffect(() => {
-    setOpen(false);
-    setExpandedItem(null);
+    // setOpen(false);
+    // setExpandedItem(null);
   }, [pathname]);
 
   const navigationItems: NavItem[] = [
@@ -58,7 +58,7 @@ const MobileSidebar = ({ userName = "Manager Name", userRole = "Manager", userIm
       subItems: [
         { label: "Ajouter joueurs", href: "/manager/dashboard/players/add" },
         { label: "profile joueurs", href: "/manager/dashboard/players/profile" },
-        { label: "liste joueurs", href: "/players" },
+        { label: "liste joueurs", href: "/manager/dashboard/players/" },
         { label: "statistics", href: "/manager/dashboard/players/statistics" },
   
       ]

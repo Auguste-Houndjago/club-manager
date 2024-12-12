@@ -46,7 +46,7 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
       subItems: [
         { label: "Ajouter joueurs", href: "/manager/dashboard/players/add" },
         { label: "profile joueurs", href: "/manager/dashboard/players/profile" },
-        { label: "liste joueurs", href: "/players" },
+        { label: "liste joueurs", href: "/manager/dashboard/players/" },
         { label: "statistics", href: "/manager/dashboard/players/statistics" },
   
       ]
@@ -100,7 +100,7 @@ const Sidebar = ({ userName = "Manager Name" , userRole = "Manager", userImage =
   ];
 
   return (
-    <div className="flex  flex-col  h-full z-20 rounded-md ">
+    <div className="flex  flex-col h-full z-20 rounded-md ">
       <div
         className={`flex flex-col h-full  rounded-md bg-[#1F1F1F] text-white transition-all duration-300 ${
           isCollapsed ? 'w-20' : 'w-64 '
