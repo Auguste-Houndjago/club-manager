@@ -46,8 +46,9 @@ export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps)
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
-          {/* <div className="space-y-2">
-            {players? ( <div> 
+          { players && 
+          <div className="space-y-2">
+
             {players.map((player) => (
               <div
                 key={player.id}
@@ -71,9 +72,9 @@ export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps)
               </div>
             ))}
 
-</div> )  : ( <div>  <h1>not player</h1>  </div>  )  }
-          </div> */}
 
+          </div>
+        }
           
         </ScrollArea>
       </CardContent>

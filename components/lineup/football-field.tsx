@@ -38,6 +38,7 @@ const opponentPlayers = [
 export function FootballField({ formation, players, positions, onPlayerDrop }: FootballFieldProps) {
   const [showOpponents, setShowOpponents] = useState(false);
   const [opponentPositions, setOpponentPositions] = useState<{ [key: string]: { x: number; y: number } }>({});
+  const [hoveredPlayer, setHoveredPlayer] = useState<string | null>(null);
 
   const defaultPositions = useMemo(() => {
     const [defenders, midfielders, forwards] = formation.split("-").map(Number);
@@ -78,6 +79,22 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
     };
     return positions;
   }, []);
+
+  const getBadgeBorderColor = (position: string | Position ) => {
+    switch (position) {
+      case "GK":
+        return "border-yellow-500";
+      case "DF":
+        return "border-blue-500";
+      case "MF":
+        return "border-green-500";
+      case "FW":
+        return "border-red-500";
+      default:
+        return "border-gray-500";
+    }
+  };
+
 
   const handleDragStart = (e: React.DragEvent, playerId: string) => {
     e.dataTransfer.setData("playerId", playerId);
@@ -154,20 +171,27 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
             <div
               key={player.id}
               draggable
-              onDragStart={(e) => handleDragStart(e, player.id)}
+              onDragStart={(e) => e.dataTransfer.setData("playerId", player.id)}
+              onMouseEnter={() => setHoveredPlayer(player.firstName)}
+              onMouseLeave={() => setHoveredPlayer(null)}
               className="absolute cursor-pointer"
               style={{
                 left: `${position.x}%`,
                 top: `${position.y}%`,
-                transform: "translate(-50%, -50%)"
+                transform: "translate(-50%, -50%)",
               }}
             >
+            
               <Badge 
-                className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-primary cursor-pointer shadow-lg transition-transform hover:scale-110"
+                className={`md:w-12 md:h-12 rounded-full flex items-center justify-center hover:border-primary/50 cursor-pointer shadow-lg transition-transform hover:scale-110  ${getBadgeBorderColor(player.position)}`}
                 variant="secondary"
               >
-                {player.jerseyNumber}
+      
+
+                 <span className="-px-8 text-[10px] duration-200 ease-out transition-all w-fit">{hoveredPlayer ? player.firstName: player.jerseyNumber} </span>  
               </Badge>
+
+
             </div>
           );
         })}
@@ -179,22 +203,21 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
 
           return (
             <div
-              key={player.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, player.id)}
-              className="absolute cursor-pointer"
-              style={{
-                left: `${position.x}%`,
-                top: `${position.y}%`,
-                transform: "translate(-50%, -50%)"
-              }}
+            key={player.id}
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData("playerId", player.id)}
+            className="absolute cursor-pointer"
+            style={{
+              left: `${position.x}%`,
+              top: `${position.y}%`,
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+         <Badge
+              className={`md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-transform hover:scale-110 border-2 ${getBadgeBorderColor(player.position)}`}
             >
-              <Badge 
-                className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-destructive cursor-pointer shadow-lg transition-transform hover:scale-110"
-                variant="destructive"
-              >
-                {player.jerseyNumber}
-              </Badge>
+              {player.jerseyNumber}
+            </Badge>
             </div>
           );
         })}
