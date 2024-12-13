@@ -3,21 +3,16 @@
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Position } from "@prisma/client";
 import { Users } from "lucide-react";
-
-interface Player {
-  id: string;
-  firstName: string;
-  position: Position;
-  jerseyNumber: number;
-}
+import { Position, Player, Coordinates } from "@/types/football";
+import { DndContext, DragEndEvent, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
 
 interface FootballFieldProps {
   formation: string;
   players: Player[];
-  positions: { [key: string]: { x: number; y: number } };
-  onPlayerDrop: (playerId: string, position: { x: number; y: number }) => void;
+  positions: { [key: string]: Coordinates };
+  onPlayerDrop: (playerId: string, position: Coordinates) => void;
 }
 
 // Opponent team mock data
@@ -37,12 +32,21 @@ const opponentPlayers = [
 
 export function FootballField({ formation, players, positions, onPlayerDrop }: FootballFieldProps) {
   const [showOpponents, setShowOpponents] = useState(false);
-  const [opponentPositions, setOpponentPositions] = useState<{ [key: string]: { x: number; y: number } }>({});
+  const [opponentPositions, setOpponentPositions] = useState<{ [key: string]: Coordinates }>({});
   const [hoveredPlayer, setHoveredPlayer] = useState<string | null>(null);
+
+  // Configure DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
 
   const defaultPositions = useMemo(() => {
     const [defenders, midfielders, forwards] = formation.split("-").map(Number);
-    const positions: { [key: string]: { x: number; y: number }[] } = {
+    const positions: { [key: string]: Coordinates[] } = {
       GK: [{ x: 50, y: 90 }],
       DF: Array.from({ length: defenders }, (_, i) => ({
         x: 20 + (60 / (defenders + 1)) * (i + 1),
@@ -62,7 +66,7 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
 
   const defaultOpponentPositions = useMemo(() => {
     const [defenders, midfielders, forwards] = "4-3-3".split("-").map(Number);
-    const positions: { [key: string]: { x: number; y: number }[] } = {
+    const positions: { [key: string]: Coordinates[] } = {
       GK: [{ x: 50, y: 10 }],
       DF: Array.from({ length: defenders }, (_, i) => ({
         x: 20 + (60 / (defenders + 1)) * (i + 1),
@@ -80,7 +84,7 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
     return positions;
   }, []);
 
-  const getBadgeBorderColor = (position: string | Position ) => {
+  const getBadgeBorderColor = (position: string | Position) => {
     switch (position) {
       case "GK":
         return "border-yellow-500";
@@ -95,17 +99,18 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!active || !over) return;
 
-  const handleDragStart = (e: React.DragEvent, playerId: string) => {
-    e.dataTransfer.setData("playerId", playerId);
-  };
+    const fieldElement = document.querySelector('.football-field');
+    if (!fieldElement) return;
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const playerId = e.dataTransfer.getData("playerId");
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const rect = fieldElement.getBoundingClientRect();
+    const x = ((event.delta.x + rect.left) / rect.width) * 100;
+    const y = ((event.delta.y + rect.top) / rect.height) * 100;
+
+    const playerId = active.id as string;
     
     if (playerId.startsWith('opp')) {
       setOpponentPositions(prev => ({
@@ -118,7 +123,7 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
   };
 
   return (
-    <div className="space-y-4 ">
+    <div className="space-y-4">
       <div className="flex justify-end">
         <Button
           variant="outline"
@@ -130,97 +135,73 @@ export function FootballField({ formation, players, positions, onPlayerDrop }: F
         </Button>
       </div>
       
-      <div 
-        className="relative w-full h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
-        style={{
-          background: 'linear-gradient(to bottom, #2d8a2d, #1f6e1f)',
-        }}
+      <DndContext 
+        sensors={sensors}
+        modifiers={[restrictToParentElement]}
+        onDragEnd={handleDragEnd}
       >
-        {/* Field texture */}
-        <div className="absolute  inset-0" 
+        <div 
+          className="football-field relative w-full h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl"
           style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 40px)',
+            background: 'url("/football-field.svg") center/cover no-repeat',
           }}
-        />
+        >
+          {/* Players */}
+          {players.map((player) => {
+            const position = positions[player.id] || defaultPositions[player.position]?.[0];
+            if (!position) return null;
 
-        {/* Field markings */}
-        <div className="absolute inset-0 border-4 border-white/30" />
-        <div className="absolute left-0 right-0 top-1/2 h-1 bg-white/30" />
-        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white/30" />
-        
-        {/* Center circle */}
-        <div className="absolute left-1/2 top-1/2 md:w-[150px] md:h-[150px] w-[90px] h-[90px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30" />
-        <div className="absolute left-1/2 top-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/30" />
-        
-        {/* Penalty areas */}
-        <div className="absolute left-1/2 bottom-0 w-[220px] h-[66px] -translate-x-1/2 border-2 border-white/30" />
-        <div className="absolute left-1/2 top-0 w-[220px] h-[66px] -translate-x-1/2 border-2 border-white/30" />
-        
-        {/* Goal areas */}
-        <div className="absolute left-1/2 bottom-0 w-[100px] h-[30px] -translate-x-1/2 border-2 border-white/30" />
-        <div className="absolute left-1/2 top-0 w-[100px] h-[30px] -translate-x-1/2 border-2 border-white/30" />
-
-        {/* Players */}
-        {players.map((player) => {
-          const position = positions[player.id] || defaultPositions[player.position]?.[0];
-          if (!position) return null;
-
-          return (
-            <div
-              key={player.id}
-              draggable
-              onDragStart={(e) => e.dataTransfer.setData("playerId", player.id)}
-              onMouseEnter={() => setHoveredPlayer(player.firstName)}
-              onMouseLeave={() => setHoveredPlayer(null)}
-              className="absolute cursor-pointer"
-              style={{
-                left: `${position.x}%`,
-                top: `${position.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <Badge 
-                className={`md:w-12 md:h-12 rounded-full flex items-center justify-center hover:border-primary/50 cursor-pointer shadow-lg transition-transform hover:scale-110  ${getBadgeBorderColor(player.position)}`}
-                variant="secondary"
+            return (
+              <div
+                key={player.id}
+                id={player.id}
+                onMouseEnter={() => setHoveredPlayer(player.firstName)}
+                onMouseLeave={() => setHoveredPlayer(null)}
+                className="absolute touch-none"
+                style={{
+                  left: `${position.x}%`,
+                  top: `${position.y}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
               >
-      
+                <Badge 
+                  className={`md:w-12 md:h-12 rounded-full flex items-center justify-center hover:border-primary/50 cursor-move shadow-lg transition-transform hover:scale-110 ${getBadgeBorderColor(player.position)}`}
+                  variant="secondary"
+                >
+                  <span className="-px-8 text-[10px] duration-200 ease-out transition-all w-fit">
+                    {hoveredPlayer ? player.firstName : player.jerseyNumber}
+                  </span>
+                </Badge>
+              </div>
+            );
+          })}
 
-                 <span className="-px-8 text-[10px] duration-200 ease-out transition-all w-fit">{hoveredPlayer ? player.firstName: player.jerseyNumber} </span>  
-              </Badge>
+          {/* Opponent Players */}
+          {showOpponents && opponentPlayers.map((player) => {
+            const position = opponentPositions[player.id] || defaultOpponentPositions[player.position]?.[0];
+            if (!position) return null;
 
-
-            </div>
-          );
-        })}
-
-        {/* Opponent Players */}
-        {showOpponents && opponentPlayers.map((player) => {
-          const position = opponentPositions[player.id] || defaultOpponentPositions[player.position]?.[0];
-          if (!position) return null;
-
-          return (
-            <div
-            key={player.id}
-            draggable
-            onDragStart={(e) => e.dataTransfer.setData("playerId", player.id)}
-            className="absolute cursor-pointer"
-            style={{
-              left: `${position.x}%`,
-              top: `${position.y}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-         <Badge
-              className={`md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-transform hover:scale-110 border-2 ${getBadgeBorderColor(player.position)}`}
-            >
-              {player.jerseyNumber}
-            </Badge>
-            </div>
-          );
-        })}
-      </div>
+            return (
+              <div
+                key={player.id}
+                id={player.id}
+                className="absolute touch-none"
+                style={{
+                  left: `${position.x}%`,
+                  top: `${position.y}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <Badge
+                  className={`md:w-12 md:h-12 rounded-full flex items-center justify-center cursor-move shadow-lg transition-transform hover:scale-110 border-2 ${getBadgeBorderColor(player.position)}`}
+                >
+                  {player.jerseyNumber}
+                </Badge>
+              </div>
+            );
+          })}
+        </div>
+      </DndContext>
     </div>
   );
 }

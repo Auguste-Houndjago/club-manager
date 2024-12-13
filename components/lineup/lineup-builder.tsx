@@ -1,34 +1,37 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-
-import { FootballField } from "./football-field";
 import { PlayerList } from "./player-list";
 import { Position } from "@prisma/client";
+import { FootballField } from "./FootballFieldMap";
 
-interface Player {
+import { assignPlayersToPositions } from "@/lib/formation-utils";
+import { FORMATIONS } from "@/constants/formations";
+
+export interface Player {
   id: string;
   firstName: string;
   position: Position;
   jerseyNumber: number;
 }
 
-const FORMATIONS = {
-  "4-3-3": { defenders: 4, midfielders: 3, forwards: 3 },
-  "4-4-2": { defenders: 4, midfielders: 4, forwards: 2 },
-  "3-5-2": { defenders: 3, midfielders: 5, forwards: 2 },
-  "4-2-3-1": { defenders: 4, midfielders: 5, forwards: 1 },
-};
-
 export function LineupBuilder() {
   const [selectedFormation, setSelectedFormation] = useState("4-3-3");
   const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([]);
   const [fieldPositions, setFieldPositions] = useState<{ [key: string]: { x: number; y: number } }>({});
+  const [isPortrait, setIsPortrait] = useState(false); 
+
+  useEffect(() => {
+    if (selectedPlayers.length > 0) {
+      const newPositions = assignPlayersToPositions(selectedPlayers, selectedFormation);
+      setFieldPositions(newPositions);
+    }
+  }, [selectedFormation, selectedPlayers]);
 
   const handlePlayerDrop = (playerId: string, position: { x: number; y: number }) => {
     setFieldPositions((prev) => ({
@@ -38,27 +41,35 @@ export function LineupBuilder() {
   };
 
   const handlePlayerSelect = (player: Player) => {
-    if (selectedPlayers.length < 11 && !selectedPlayers.find(p => p.id === player.id)) {
+    if (selectedPlayers.length < 11 && !selectedPlayers.find((p) => p.id === player.id)) {
       setSelectedPlayers([...selectedPlayers, player]);
     }
   };
 
   const handlePlayerRemove = (playerId: string) => {
-    setSelectedPlayers(selectedPlayers.filter(p => p.id !== playerId));
+    setSelectedPlayers(selectedPlayers.filter((p) => p.id !== playerId));
     const newPositions = { ...fieldPositions };
     delete newPositions[playerId];
     setFieldPositions(newPositions);
   };
 
+  const handleFormationChange = (formation: string) => {
+    setSelectedFormation(formation);
+  };
+
+  const toggleOrientation = () => {
+    setIsPortrait((prev) => !prev); 
+  };
+
   return (
-    <div className="grid gap-6  gap-x-2 md:grid-cols-[300px_1fr]">
+    <div className="grid gap-6 gap-x-2 md:grid-cols-[300px_1fr]">
       <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Formation</CardTitle>
           </CardHeader>
           <CardContent>
-            <Select value={selectedFormation} onValueChange={setSelectedFormation}>
+            <Select value={selectedFormation} onValueChange={handleFormationChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select formation" />
               </SelectTrigger>
@@ -75,7 +86,9 @@ export function LineupBuilder() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex justify-center text-base font-bold ">Selected Players <span className="text-red-400 ml-2">  ({selectedPlayers.length}/11)</span> </CardTitle>
+            <CardTitle className="flex justify-center text-base font-bold">
+              Selected Players <span className="text-red-400 ml-2">({selectedPlayers.length}/11)</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[300px]">
@@ -105,21 +118,32 @@ export function LineupBuilder() {
 
       <Card className="px-0">
         <CardHeader>
-          <CardTitle>Field Setup</CardTitle>
+          <CardTitle>
+            Field Setup
+
+          </CardTitle>
         </CardHeader>
-        <CardContent className="px-4">
 
-          {selectedPlayers && 
-          <FootballField 
-            formation={selectedFormation}
-            players={selectedPlayers}
-            positions={fieldPositions}
-            onPlayerDrop={handlePlayerDrop}
-          />
+        <CardContent  className={`px-4   ${isPortrait? "rotate-90 relative" : " "}`}>
+  
 
-        }
+          {selectedPlayers && (
+            <FootballField
+              formation={selectedFormation}
+              players={selectedPlayers}
+              positions={fieldPositions}
+              onPlayerDrop={handlePlayerDrop}
+            />
+          )}
         </CardContent>
+        <CardFooter>
+        <Button className="hidden md:inline" onClick={()=>setIsPortrait(!isPortrait)}>
+           orientation: ({isPortrait? "portrait" : "landscape"})
+          </Button>
+        </CardFooter>
       </Card>
+
+
     </div>
   );
 }
