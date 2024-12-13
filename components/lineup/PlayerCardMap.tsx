@@ -75,10 +75,10 @@ export function PlayerCard({ player, onClose }: PlayerCardProps) {
   )
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent border-md ">
       <div 
         className={`
-          w-full max-w-md 
+          w-full max-w-md  md:scale-0 scale-[0.8]
           relative 
           transition-all 
           duration-500 
