@@ -278,7 +278,7 @@ export function FootballField({ formation, players, positions,  onPlayerDrop }: 
 
         {/* Player Details Modal */}
         {selectedPlayer && (
-          <div className="hidden fixed inset-0 bg-black/50 md:flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/50 md:flex items-center justify-center p-4 z-50">
             <div className="max-w-lg w-full">
               <PlayerCard 
                 player={selectedPlayer} 
