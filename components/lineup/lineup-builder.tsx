@@ -124,10 +124,10 @@ export function LineupBuilder() {
           </CardTitle>
         </CardHeader>
 
-        <CardContent  className={`px-4   ${isPortrait? "rotate-90 relative" : " "}`}>
+        <CardContent  className={`px-4   ${isPortrait? "rotate-90 relative" : " rotate-0"}`}>
   
 
-          {selectedPlayers && (
+          {selectedPlayers && ( 
             <FootballField
               formation={selectedFormation}
               players={selectedPlayers}

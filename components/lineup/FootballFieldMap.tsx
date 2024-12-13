@@ -123,7 +123,7 @@ const DroppableField = ({ onDrop, children }: { onDrop: (x: number, y: number, i
   }));
 
   return (
-    <div ref={drop} id="football-field" className="relative w-full h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl">
+    <div ref={drop} id="football-field" className="relative w-[300px] md:w-full  h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl">
       {children}
     </div>
   );
