@@ -48,7 +48,7 @@ export function PlayerCard({ player, onClose }: PlayerCardProps) {
     setIsVisible(true)
   }, [])
 
-  // Mock data with default values (same as original)
+
   const mockPlayer: PlayerDetails = {
     id: player.id || "mock-id",
     firstName: player.firstName || "Komi",
@@ -78,7 +78,7 @@ export function PlayerCard({ player, onClose }: PlayerCardProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent border-md ">
       <div 
         className={`
-          w-full max-w-md  md:scale-0 scale-[0.8]
+          w-full max-w-[250px] md:max-w-md  md:scale-0 scale-[0.8]
           relative 
           transition-all 
           duration-500 
@@ -130,7 +130,7 @@ export function PlayerCard({ player, onClose }: PlayerCardProps) {
               <X className="h-6 w-6" />
             </button>
             
-            <CardContent className="p-6">
+            <CardContent className="p-8">
               {/* Player Header */}
               <div className="flex items-center gap-6 mb-8">
                 <div className="relative">
@@ -179,10 +179,9 @@ export function PlayerCard({ player, onClose }: PlayerCardProps) {
                 </div>
               </div>
 
-              {/* Player Information Grid */}
-              <div className="grid grid-cols-2 gap-6">
-                {/* Personal Info */}
-                <div>
+              <div >
+        
+                <div >
                   <h3 className="
                     font-semibold 
                     mb-4 
@@ -220,44 +219,6 @@ export function PlayerCard({ player, onClose }: PlayerCardProps) {
                   </div>
                 </div>
 
-                {/* Season Stats */}
-                <div>
-                  <h3 className="
-                    font-semibold 
-                    mb-4 
-                    text-lg 
-                    text-black 
-                    dark:text-white/80 
-                    border-b 
-                    border-black/10 
-                    dark:border-white/10 
-                    pb-2
-                  ">
-                    Season Stats
-                  </h3>
-                  <div className="space-y-3">
-                    <PlayerInfoItem 
-                      icon={<Activity className="w-4 h-4" />} 
-                      label="Games" 
-                      value={mockPlayer.statistics?.gamesPlayed.toString() || ''} 
-                    />
-                    <PlayerInfoItem 
-                      icon={<Trophy className="w-4 h-4" />} 
-                      label="Goals" 
-                      value={mockPlayer.statistics?.goals.toString() || ''} 
-                    />
-                    <PlayerInfoItem 
-                      icon={<Trophy className="w-4 h-4" />} 
-                      label="Assists" 
-                      value={mockPlayer.statistics?.assists.toString() || ''} 
-                    />
-                    <PlayerInfoItem 
-                      icon={<Clock className="w-4 h-4" />} 
-                      label="Minutes" 
-                      value={mockPlayer.statistics?.minutesPlayed.toString() || ''} 
-                    />
-                  </div>
-                </div>
               </div>
             </CardContent>
           </div>

@@ -49,7 +49,7 @@ export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps)
           { players && 
           <div className="space-y-2">
 
-            {players.map((player) => (
+            {/* {players.map((player) => (
               <div
                 key={player.id}
                 className="flex items-center justify-between p-2 border rounded hover:bg-accent"
@@ -70,7 +70,7 @@ export function PlayerList({ onPlayerSelect, selectedPlayers }: PlayerListProps)
                   {isPlayerSelected(player.id) ? "Selected" : "Select"}
                 </Button>
               </div>
-            ))}
+            ))} */}
 
 
           </div>

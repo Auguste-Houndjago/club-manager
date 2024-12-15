@@ -123,7 +123,7 @@ const DroppableField = ({ onDrop, children }: { onDrop: (x: number, y: number, i
   }));
 
   return (
-    <div ref={drop} id="football-field" className="relative w-[300px] md:w-full  h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl">
+    <div ref={drop} id="football-field" className="relative  md:w-full  h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl">
       {children}
     </div>
   );
@@ -220,7 +220,7 @@ export function FootballField({ formation, players, positions,  onPlayerDrop }: 
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="space-y-4">
+      <div className="space-y-4  ">
         <div className="flex justify-end">
           <Button
             variant="outline"
@@ -233,10 +233,20 @@ export function FootballField({ formation, players, positions,  onPlayerDrop }: 
           </Button>
         </div>
         
+
+
+        
         <DroppableField onDrop={handleDrop}  >
 
-          <FootballFieldBackground />
+
+
+
           
+                  <div 
+          className="football-field relative w-full h-[450px] md:h-[750px] rounded-lg overflow-hidden shadow-xl"
+          style={{
+            background: 'url("/footballfielPortrai.svg") center/cover no-repeat',
+          }} >
           
           {/* Players */}
           {players.map((player) => {
@@ -274,6 +284,7 @@ export function FootballField({ formation, players, positions,  onPlayerDrop }: 
           })}
        
 
+       </div>
         </DroppableField>
 
         {/* Player Details Modal */}
@@ -287,7 +298,10 @@ export function FootballField({ formation, players, positions,  onPlayerDrop }: 
             </div>
           </div>
         )}
+      
       </div>
+     
     </DndProvider>
+  
   );
 }
